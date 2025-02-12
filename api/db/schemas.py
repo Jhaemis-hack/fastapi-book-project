@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import OrderedDict
+from collections import OrderedDict
 
 from pydantic import BaseModel
 
@@ -28,10 +28,9 @@ class Book(BaseModel):
     publication_year: int
     genre: Genre
 
-
 class InMemoryDB:
     def __init__(self):
-        self.books: OrderedDict[int, Book] = {}
+        self.books: OrderedDict[int, Book] = OrderedDict()
 
     def get_books(self) -> OrderedDict[int, Book]:
         """Gets books from database.
