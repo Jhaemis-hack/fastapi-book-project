@@ -10,7 +10,7 @@ router = APIRouter()
 db = InMemoryDB()
 db.books = OrderedDict({
     1: Book(
-        id=7,
+        id=10,
         title="The Hobbit",
         author="J.R.R. Tolkien",
         publication_year=1937,
