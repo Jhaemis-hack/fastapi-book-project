@@ -29,8 +29,4 @@ jobs:
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
-            
-            # Restart FastAPI application
-            pkill -f uvicorn || true  # ✅ Stops the running process (ignores error if not running)
-            nohup uvicorn main:app --host 0.0.0.0 --port 8000 --workers 3 > uvicorn.log 2>&1 &
-
+            sudo systemctl restart fastapi
