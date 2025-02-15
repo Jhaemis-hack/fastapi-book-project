@@ -1,4 +1,4 @@
-name: Deploy to Vercel via GitHub Actions
+name: Deploy FastAPI to AWS via GitHub Actions
 
 on:
   pull_request:
@@ -15,21 +15,18 @@ jobs:
     environment: production
     
     steps:
-      - name: 🛒 Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: 📦 Set up Python
-        uses: actions/setup-python@v4
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          python-version: '3.9'
-
-      - name: 📥 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: 🚀 Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: 🚀 Deploy to Vercel (Manual Trigger)
-        run: vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd ~/fastapi-book-project
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart fastapi
