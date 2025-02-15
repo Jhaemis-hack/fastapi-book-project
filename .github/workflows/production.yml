@@ -30,11 +30,16 @@ jobs:
             source venv/bin/activate
             pip install -r requirements.txt
             
-            pkill -f uvicorn || true  # Stop Uvicorn if it's running
+            # Kill any running Uvicorn instances
+            pkill -f uvicorn || true
             sleep 2  # Wait for termination
             
+            # Double-check if any process is still hanging
             if pgrep -f uvicorn > /dev/null; then
+                pkill -f uvicorn || true
                 sleep 2
             fi
             
+            # Start Uvicorn in the background (detached from SSH)
             nohup uvicorn main:app --host 0.0.0.0 --port 8000 --workers 3 > uvicorn.log 2>&1 &
+            disown
