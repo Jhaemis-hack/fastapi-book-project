@@ -11,31 +11,24 @@ jobs:
   deploy:
     if: github.event.pull_request.merged == true  # ✅ Ensures job runs only on merge
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     environment: production
     
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy to AWS EC2
+      - name: Set up SSH and Deploy
         uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ubuntu
-          key: ${{ secrets.AWS_SSH_KEY }}
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Navigate to the project directory
             cd ~/fastapi-book-project
-            
-            # Ensure correct branch
-            git fetch origin main
-            git reset --hard origin/main
-            
-            # Install dependencies
-            ~/fastapi-book-project/venv/bin/pip install -r requirements.txt
-            
-            # Restart Uvicorn using systemd
+            git pull origin main
+            source venv/bin/activate
+            pip install -r requirements.txt
+
+            # Restart FastAPI with systemd
             sudo systemctl daemon-reload
-            sudo systemctl restart uvicorn
-            sudo systemctl status uvicorn --no-pager
+            sudo systemctl restart fastapi
