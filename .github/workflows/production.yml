@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # ✅ Ensures job runs only on merge
+    if: github.event.pull_request.merged == true  
     runs-on: ubuntu-latest
     environment: production
     
