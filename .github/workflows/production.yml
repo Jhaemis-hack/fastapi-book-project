@@ -5,11 +5,11 @@ on:
     branches:
       - main
     types:
-      - closed  # ✅ Triggers only when the PR is merged
+      - closed  # ✅ Runs only when the PR is merged
 
 jobs:
   deploy:
-    if: github.event.pull_request.merged == true  # ✅ Ensures job runs only when the PR is merged
+    if: github.event.pull_request.merged == true  # ✅ Ensures job runs only on merge
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: production
@@ -25,14 +25,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
+            # Navigate to the project directory
             cd ~/fastapi-book-project
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
             
-            # Kill any running Uvicorn instances
-            pkill -f uvicorn || true
-            sleep 2
+            # Ensure correct branch
+            git fetch origin main
+            git reset --hard origin/main
             
-            # Start Uvicorn using tmux (ensures it persists)
-            tmux new-session -d -s uvicorn_session 'uvicorn main:app --host 0.0.0.0 --port 8000 --workers 3'
+            # Install dependencies
+            ~/fastapi-book-project/venv/bin/pip install -r requirements.txt
+            
+            # Restart Uvicorn using systemd
+            sudo systemctl daemon-reload
+            sudo systemctl restart uvicorn
+            sudo systemctl status uvicorn --no-pager
